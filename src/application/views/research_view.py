@@ -5,11 +5,13 @@ from markupsafe import Markup
 from flask import url_for
 from flask_admin import form
 
-file_path = op.join(op.dirname(__file__), 'files')
-try:
-    os.mkdir(file_path)
-except OSError:
-    pass
+# file_path = op.join(op.dirname(__file__), 'files')
+# try:
+#     os.mkdir(file_path)
+# except OSError:
+#     pass
+
+file_path = os.path.abspath(os.path.dirname(__name__))
 
 class ResearchView(MyModelView):
     column_exclude_list = ('patronymic', 'passport',)
@@ -28,6 +30,6 @@ class ResearchView(MyModelView):
     # In this case, Flask-Admin won't attempt to merge various parameters for the field.
     form_extra_fields = {
         'path': form.ImageUploadField('Image',
-                                      base_path=file_path,
+                                      base_path=os.path.join(file_path, 'application/static'),
                                       thumbnail_size=(100, 100, True))
     }
