@@ -1,6 +1,8 @@
 # Create customized model view class
 from application.views.base_view import MyModelView
 from wtforms import PasswordField
+from flask_security.utils import encrypt_password
+
 
 
 class UserView(MyModelView):
@@ -13,3 +15,12 @@ class UserView(MyModelView):
     form_overrides = {
         'password': PasswordField
     }
+    
+    def add_encrypt(self, _form):
+      _form.password.data = encrypt_password(_form.password.data)
+      return _form
+    
+    def create_form(self, obj=None):
+       return self.add_encrypt(
+          super(UserView, self).create_form(obj)
+      )

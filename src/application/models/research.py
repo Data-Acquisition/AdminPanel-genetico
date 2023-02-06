@@ -10,10 +10,10 @@ class Research(db.Model):
     passport = db.Column(db.Integer)
     comment = db.Column(db.Unicode(256))
     date = db.Column(db.DateTime, default=datetime.now)
-    PP = db.Column(db.Float)
-    DC = db.Column(db.Float)
-    DS = db.Column(db.Float)
-    DP = db.Column(db.Float)
+    diff_p = db.Column(db.Float)
+    mix_p = db.Column(db.Float)
+    den_p = db.Column(db.Float)
+    prol = db.Column(db.Float)
     path = db.Column(db.Unicode(128))
 
     def __unicode__(self):

@@ -16,6 +16,7 @@ from application.models import *
 user_datastore = SQLAlchemyUserDatastore(db, User, Role)
 security = Security(app, user_datastore)
 
+
 admin = flask_admin.Admin(
     app,
     'GENETICO',
