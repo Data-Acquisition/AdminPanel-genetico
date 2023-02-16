@@ -10,4 +10,4 @@ enum34==1.1.6
 email_validator
 torchvision==0.14.0
 numpy
-opencv-python==4.7.0.68
+opencv-python
