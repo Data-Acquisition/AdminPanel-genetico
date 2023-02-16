@@ -1,11 +1,13 @@
 Flask
 Flask-Admin
-Flask-SQLAlchemy
+SQLAlchemy==1.4.46
+Flask-SQLAlchemy==3.0.2
 pillow
 redis
 Flask-WTF==1.0.1
 Flask-Security>=1.7.5
 enum34==1.1.6
 email_validator
-torchvision
+torchvision==0.14.0
 numpy
+opencv-python==4.7.0.68

@@ -1,11 +1,7 @@
 import torch
 from application.ml import utils
-# import utils
-# import application.ml.model as model
-# import visualize
-# import torchvision
-from torchvision.io import decode_image
 import numpy as np
+import cv2
 
 #############################################
 # CUDA for PyTorch
@@ -22,58 +18,32 @@ MODEL_NAME = "genetico.pth"
 
 ModelFit = utils.LoadModel(modelname=MODEL_NAME)
 
-# def apply_nms(orig_prediction, iou_thresh):
-#     # torchvision returns the indices of the bboxes to keep
-#     keep = torchvision.ops.nms(orig_prediction['boxes'], orig_prediction['scores'], iou_thresh)
-
-#     final_prediction = orig_prediction
-#     final_prediction['boxes'] = final_prediction['boxes'][keep]
-#     final_prediction['scores'] = final_prediction['scores'][keep]
-#     final_prediction['labels'] = final_prediction['labels'][keep]
-
-#     return final_prediction
-
-
-
-# def Predict(img_path, model):
-#     Img = read_image(img_path)
-#     answer = model([Img.float()])
-#     # nms_prediction = apply_nms(answer, iou_thresh=0.7)
-#     # print(nms_prediction)
-#     return Img, answer
 
 def loadImage(image_bytes):
-    np_array = np.frombuffer(image_bytes, np.uint8)
-    return torch.tensor(np_array)
+    img = cv2.cvtColor(image_bytes, cv2.COLOR_BGR2RGB)
+    return torch.from_numpy(img.transpose((2, 0, 1)))
+
+
+def apply_nms(orig_prediction, iou_thresh):
+    mask = orig_prediction['scores'] > iou_thresh
+    for key, val in orig_prediction.items():
+        orig_prediction[key] = val[mask]
+    return orig_prediction
 
 
 def Predict(image_bytes, model):
-    Img = decode_image(loadImage(image_bytes))
-    answer = model([Img.float()])
-    # nms_prediction = apply_nms(answer, iou_thresh=0.7)
-    # print(nms_prediction)
+    Img = loadImage(image_bytes)
+    answer = model([Img.float()])[0]
+    answer = apply_nms(answer, 0.7)
     result = {"_": [], "Diffuse": [], "Mixed": [], "Dense": []}
-    for index in range(len(answer[0]['labels'])):
-        label_id = answer[0]['labels'][index]
+    for index in range(len(answer['labels'])):
+        label_id = answer['labels'][index]
         labels = list(result.keys())
         label_boxes = result.get(labels[label_id])
-        label_boxes.append(answer[0]['boxes'][index])
-    return result
+        label_boxes.append(answer['boxes'][index])
+    image_with_boxes = utils.ShowImageWithBoxes(Img.permute(1, 2, 0).numpy(), answer, CLASSES)
+    return image_with_boxes, result
 
 
-# if __name__ == '__main__':
-
-#     #############################################
-#     # Load Model
-#     #############################################
-#     # ModelFit = utils.LoadModel(modelname=MODEL_NAME)
-
-#     #############################################
-#     # Predict data
-#     #############################################
-#     # ModelFit.eval()
-#     file = open('imagee.png', "rb")
-#     img, result = Predict(file.read(), ModelFit)
-#     print(img)
-#     print(result)
-#     # visualize.ShowImageWithBoxes(img, boxes, CLASSES)
+def split_cups(image_bytes):
+    return utils.split_cups(np.fromstring(image_bytes, np.uint8))
